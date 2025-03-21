@@ -1,32 +1,25 @@
 <?php
-// Conexión a la base de datos
+
 $host = 'localhost';
-$usuario = 'root';  // Cambia según tu configuración
-$contrasena = '';   // Cambia según tu configuración
+$usuario = 'root';  
+$contrasena = '';   
 $base_de_datos = 'tienda_online';
 
-// Crear conexión
 $conn = new mysqli($host, $usuario, $contrasena, $base_de_datos);
 
-// Verificar la conexión
 if ($conn->connect_error) {
     die("Conexión fallida: " . $conn->connect_error);
 }
 
-// Consultar productos
-$sql = "SELECT * FROM productos";
+$sql = "SELECT DISTINCT * FROM productos";
 $resultado = $conn->query($sql);
 
-// Verificar si hay productos
 $productos = [];
 if ($resultado->num_rows > 0) {
     while($producto = $resultado->fetch_assoc()) {
         $productos[] = $producto;
     }
-} else {
-    echo "No se encontraron productos";
 }
-
 $conn->close();
 ?>
 
@@ -40,10 +33,10 @@ $conn->close();
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
             text-align: center;
             background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
         }
         header {
             background-color: #007bff;
@@ -71,8 +64,9 @@ $conn->close();
             transform: scale(1.05);
         }
         .producto img {
-            max-width: 100%;
-            height: auto;
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
             border-radius: 10px;
         }
         .precio {
@@ -92,7 +86,6 @@ $conn->close();
         button:hover {
             background-color: #0056b3;
         }
-
         .modal {
             display: none;
             position: fixed;
@@ -142,25 +135,30 @@ $conn->close();
     </style>
 </head>
 <body>
-
 <header>
     <h1>Bienvenido a nuestra tienda online</h1>
-    <p>Encuentra los mejores productos al mejor precio.</p>
 </header>
-
 <section class="productos">
-    <?php foreach ($productos as $producto): ?>
+    <?php 
+    $imagenes_predeterminadas = [
+        'https://www.rastreator.com/wp-content/uploads/mejores-moviles.jpg',
+        'https://concepto.de/wp-content/uploads/2020/06/Computadora-de-escritorio-scaled-e1724955496406-1536x781.jpg',
+        'https://concepto.de/wp-content/uploads/2021/02/sentido-del-oido-e1613177299691.jpg',
+        'https://m.media-amazon.com/images/I/61bJZx1v8GL.__AC_SY445_SX342_QL70_FMwebp_.jpg',
+            ];
+    $i = 0;
+    foreach ($productos as $producto): ?>
         <div class="producto">
-            <img src="<?php echo $producto['imagen_url']; ?>" alt="<?php echo $producto['nombre']; ?>">
-            <h2><?php echo $producto['nombre']; ?></h2>
-            <p><?php echo $producto['descripcion']; ?></p>
+            <img src="<?php echo !empty($producto['ttps://www.rastreator.com/wp-content/uploads/mejores-moviles.jpg']) ? htmlspecialchars($producto['imagen_url']) : $imagenes_predeterminadas[$i % count($imagenes_predeterminadas)]; ?>" 
+                 alt="<?php echo htmlspecialchars($producto['nombre']); ?>">
+            <h2><?php echo htmlspecialchars($producto['nombre']); ?></h2>
+            <p><?php echo htmlspecialchars($producto['descripcion']); ?></p>
             <p class="precio">$<?php echo number_format($producto['precio'], 2); ?></p>
             <button onclick="mostrarFormulario()">Añadir al carrito</button>
         </div>
-    <?php endforeach; ?>
+    <?php $i++; endforeach; ?>
 </section>
 
-<!-- Modal de tarjeta de crédito -->
 <div id="myModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="cerrarFormulario()">&times;</span>
@@ -204,6 +202,5 @@ $conn->close();
         cerrarFormulario();
     });
 </script>
-
 </body>
 </html>
